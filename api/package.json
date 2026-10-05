@@ -1,0 +1,39 @@
+{
+  "name": "@voiceflow/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@voiceflow/shared": "*",
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.0",
+    "express": "^4.21.0",
+    "express-rate-limit": "^8.7.0",
+    "firebase-admin": "^14.4.0",
+    "helmet": "^8.3.0",
+    "ioredis": "^5.4.0",
+    "mongoose": "^8.8.0",
+    "uuid": "^10.0.0",
+    "ws": "^8.21.3",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.0",
+    "@types/helmet": "^0.0.48",
+    "@types/uuid": "^10.0.0",
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.1.0"
+  }
+}

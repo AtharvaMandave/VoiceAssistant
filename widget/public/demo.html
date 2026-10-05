@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acme Cloud Services — VoiceFlow Integration Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #09090e;
+      color: #e2e8f0;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Demo Ribbon */
+    .demo-bar {
+      background: linear-gradient(90deg, #4f46e5, #7c3aed);
+      color: white;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .demo-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .demo-badge {
+      background: rgba(255,255,255,0.2);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .demo-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .demo-bar input {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 6px;
+      padding: 5px 10px;
+      color: white;
+      font-size: 12px;
+      font-family: monospace;
+      width: 220px;
+    }
+    .demo-bar button {
+      background: white;
+      color: #4f46e5;
+      border: none;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .demo-bar button:hover {
+      background: #f1f5f9;
+      transform: translateY(-1px);
+    }
+
+    /* Navbar */
+    .navbar {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-dot {
+      width: 10px;
+      height: 10px;
+      background: #6366f1;
+      border-radius: 50%;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover {
+      color: white;
+    }
+    .btn-primary {
+      background: #6366f1;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-primary:hover {
+      background: #4f46e5;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+    }
+
+    /* Hero */
+    .hero {
+      max-width: 900px;
+      margin: 80px auto 60px;
+      text-align: center;
+      padding: 0 20px;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #818cf8;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+      background: linear-gradient(180deg, #ffffff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 18px;
+      color: #94a3b8;
+      margin-bottom: 36px;
+      max-width: 680px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Instructions Box */
+    .integration-box {
+      max-width: 800px;
+      margin: 0 auto 80px;
+      background: #12121a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .integration-box h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .integration-box p {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 16px;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .step-card {
+      background: #181824;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .step-num {
+      width: 24px;
+      height: 24px;
+      background: #6366f1;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .step-card h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-bottom: 4px;
+    }
+    .step-card p {
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 0;
+    }
+
+    /* Features */
+    .features {
+      max-width: 1200px;
+      margin: 0 auto 100px;
+      padding: 0 20px;
+    }
+    .features-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .features-header h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .features-header p {
+      color: #94a3b8;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .card {
+      background: #12121a;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 28px;
+      transition: all 0.2s;
+    }
+    .card:hover {
+      border-color: rgba(99, 102, 241, 0.3);
+      transform: translateY(-4px);
+    }
+    .card-icon {
+      font-size: 28px;
+      margin-bottom: 16px;
+    }
+    .card h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: white;
+    }
+    .card p {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    /* Pricing Section */
+    .pricing {
+      max-width: 1000px;
+      margin: 0 auto 120px;
+      padding: 0 20px;
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .price-card {
+      background: #12121a;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+    }
+    .price-card.featured {
+      border-color: #6366f1;
+      background: linear-gradient(180deg, #18182c 0%, #12121a 100%);
+    }
+    .price-card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .price {
+      font-size: 40px;
+      font-weight: 800;
+      color: white;
+      margin: 16px 0;
+    }
+    .price span {
+      font-size: 14px;
+      color: #94a3b8;
+      font-weight: 400;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Demo Bar -->
+  <div class="demo-bar">
+    <div class="demo-bar-left">
+      <span class="demo-badge">Client Integration Demo</span>
+      <span>Simulated Customer Website with VoiceFlow Embed</span>
+    </div>
+    <div class="demo-bar-right">
+      <span>Agent ID:</span>
+      <input type="text" id="agentIdInput" placeholder="Enter Agent ID" />
+      <button onclick="loadAgentWidget()">Load Widget</button>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="#" class="logo">
+      <div class="logo-dot"></div>
+      AcmeCloud
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a href="#pricing" class="btn-primary">Get Started</a>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-badge">✨ Live AI Voice Assistant Embedded</div>
+    <h1>The Intelligent Cloud Platform for High-Growth Teams</h1>
+    <p>Deploy scalable infrastructure in seconds. Notice the floating voice assistant in the bottom corner — try clicking it or speaking to it right now!</p>
+  </section>
+
+  <!-- Integration Info Box -->
+  <div class="integration-box">
+    <h3>💡 How This Customer Website Integrated VoiceFlow</h3>
+    <p>This page demonstrates how simple it is for any client or partner to embed their VoiceFlow AI Voice Agent into any HTML, React, WordPress, Webflow, or Shopify site.</p>
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h4>Copy Script Tag</h4>
+        <p>From your VoiceFlow Dashboard, copy the 1-line script tag with your unique <code>data-agent-id</code>.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h4>Paste Before &lt;/body&gt;</h4>
+        <p>Paste the snippet onto your website. No complex build tools or dependencies required.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h4>Voice & Text Active</h4>
+        <p>Visitors can immediately tap the floating mic button to hold natural real-time voice conversations!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="features-header">
+      <h2>Engineered for Global Scale</h2>
+      <p>Instant edge delivery, automated failover, and zero configuration.</p>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Ultra-Low Latency</h3>
+        <p>Real-time speech-to-speech voice pipeline operating under 300ms for fluid conversational turn-taking.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧠</div>
+        <h3>RAG Knowledge Grounding</h3>
+        <p>Answers grounded directly in your uploaded PDF, DOCX, and website knowledge base without hallucinations.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔒</div>
+        <h3>Tenant Isolated</h3>
+        <p>Strict multi-tenant security with domain whitelisting, ephemeral tokens, and end-to-end data encryption.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing" id="pricing">
+    <div class="features-header">
+      <h2>Simple, Transparent Pricing</h2>
+      <p>Choose the plan that fits your conversation volume.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <h3>Starter</h3>
+        <div class="price">$49 <span>/ mo</span></div>
+        <p>Up to 500 voice minutes per month.</p>
+      </div>
+      <div class="price-card featured">
+        <h3>Pro</h3>
+        <div class="price">$199 <span>/ mo</span></div>
+        <p>Up to 3,000 voice minutes per month.</p>
+      </div>
+      <div class="price-card">
+        <h3>Enterprise</h3>
+        <div class="price">Custom</div>
+        <p>Unlimited minutes, custom models, and SLA.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Script to dynamically load widget from URL param or default -->
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const agentIdFromUrl = urlParams.get("agentId");
+
+    const input = document.getElementById("agentIdInput");
+    if (agentIdFromUrl) {
+      input.value = agentIdFromUrl;
+      injectWidget(agentIdFromUrl);
+    }
+
+    function loadAgentWidget() {
+      const id = input.value.trim();
+      if (!id) {
+        alert("Please enter an Agent ID");
+        return;
+      }
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.set("agentId", id);
+      window.location.href = newUrl.toString();
+    }
+
+    function injectWidget(agentId) {
+      const script = document.createElement("script");
+      script.src = "/widget/voiceflow-widget.js";
+      script.setAttribute("data-agent-id", agentId);
+      script.defer = true;
+      document.body.appendChild(script);
+      console.log("[Demo Page] Injected VoiceFlow widget for agent:", agentId);
+    }
+  </script>
+</body>
+</html>
