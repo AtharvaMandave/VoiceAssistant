@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { synthesizeSpeech } from "../lib/api";
+import { useAuthStore } from "../stores/authStore";
 
 // ─── Minimal Audio Spectrum Visualizer Component ─────────────────────────────
 function AudioVisualizerCanvas({
@@ -100,6 +101,12 @@ function AudioVisualizerCanvas({
 }
 
 export default function LandingPage() {
+  const { isAuthenticated, user, initializeAuth, logout } = useAuthStore();
+
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
+
   // ─── Voice Persona State ──────────────────────────────────────────────────
   const [selectedVoice, setSelectedVoice] = useState("af_heart");
   const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
@@ -657,18 +664,50 @@ export default function LandingPage() {
 
           {/* Right Action Buttons */}
           <div className="flex items-center gap-3">
-            <Link
-              to="/login"
-              className="text-xs font-medium text-neutral-600 hover:text-black px-3 py-1.5 transition-colors"
-            >
-              Sign in
-            </Link>
-            <Link
-              to="/dashboard/agents/new"
-              className="btn-pill-blue"
-            >
-              Get Started
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="btn-pill-blue flex items-center gap-2 py-2 px-4 text-xs font-semibold shadow-pill-blue hover:shadow-pill-blue-lg"
+                >
+                  <span>Dashboard</span>
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </Link>
+                <div className="flex items-center gap-2 pl-2 border-l border-neutral-200">
+                  <div className="w-7 h-7 rounded-full bg-blue-100 text-[#0066FF] flex items-center justify-center text-xs font-semibold overflow-hidden border border-blue-200">
+                    {user?.avatarUrl ? (
+                      <img src={user.avatarUrl} alt={user.name || "User"} className="w-full h-full object-cover" />
+                    ) : (
+                      (user?.name?.[0] || user?.email?.[0] || "U").toUpperCase()
+                    )}
+                  </div>
+                  <button
+                    onClick={() => logout()}
+                    className="text-xs text-neutral-500 hover:text-red-600 transition-colors px-1 py-1"
+                    title="Sign out"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="text-xs font-medium text-neutral-600 hover:text-black px-3 py-1.5 transition-colors"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  to="/register"
+                  className="btn-pill-blue"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -701,10 +740,15 @@ export default function LandingPage() {
           {/* Minimal Pill Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3">
             <Link
-              to="/dashboard/agents/new"
-              className="btn-pill-blue px-6 py-3 text-sm shadow-pill-blue hover:shadow-pill-blue-lg"
+              to={isAuthenticated ? "/dashboard" : "/register"}
+              className="btn-pill-blue px-6 py-3 text-sm shadow-pill-blue hover:shadow-pill-blue-lg flex items-center gap-2"
             >
-              Start Free Trial
+              <span>{isAuthenticated ? "Go to Dashboard" : "Start Free Trial"}</span>
+              {isAuthenticated && (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              )}
             </Link>
             <a
               href="#demo"
@@ -1654,7 +1698,18 @@ export default function LandingPage() {
             <Link to="/dashboard" className="hover:text-black transition-colors">Dashboard</Link>
             <Link to="/dashboard/agents" className="hover:text-black transition-colors">Agents</Link>
             <Link to="/dashboard/conversations" className="hover:text-black transition-colors">Conversations</Link>
-            <Link to="/login" className="hover:text-black transition-colors">Sign in</Link>
+            {isAuthenticated ? (
+              <button
+                onClick={() => logout()}
+                className="hover:text-black transition-colors"
+              >
+                Sign out
+              </button>
+            ) : (
+              <Link to="/login" className="hover:text-black transition-colors">
+                Sign in
+              </Link>
+            )}
           </div>
         </div>
       </footer>

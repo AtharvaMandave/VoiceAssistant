@@ -67,13 +67,7 @@ function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, activeOrganization, role, isAuthenticated, login, logout } = useAuthStore();
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      login().catch(() => {});
-    }
-  }, [isAuthenticated, login]);
+  const { user, activeOrganization, role, isAuthenticated, logout } = useAuthStore();
 
   const handleLogout = () => {
     logout();
@@ -98,7 +92,7 @@ function DashboardLayout() {
       >
         {/* Logo */}
         <div className="flex h-16 items-center gap-2.5 border-b border-black/[0.05] px-5">
-          <Link to="/" className="flex items-center gap-2.5">
+          <Link to="/dashboard" className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#0A0A0C] text-white text-xs font-bold">
               V
             </div>

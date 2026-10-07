@@ -3,12 +3,19 @@
 // Prevents brute force attacks, credential stuffing, and API abuse.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import rateLimit from "express-rate-limit";
+import rateLimit, { type Options } from "express-rate-limit";
 import type { Request, Response } from "express";
+
+// Helper: normalize IPv6-mapped IPv4 addresses (e.g. ::ffff:127.0.0.1 → 127.0.0.1)
+function normalizeIp(req: Request): string {
+  const raw = req.ip ?? req.socket.remoteAddress ?? "unknown";
+  // Strip IPv6-mapped IPv4 prefix
+  return raw.replace(/^::ffff:/, "");
+}
 
 // ─── Auth Rate Limiter ──────────────────────────────────────────────────────
 // Strict rate limiting on login/register/reset endpoints.
-// 5 attempts per 15 minutes per IP — industry standard for auth endpoints.
+// 10 attempts per 15 minutes per IP+email — industry standard for auth endpoints.
 
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -23,11 +30,11 @@ export const authRateLimiter = rateLimit({
   standardHeaders: true,     // Return rate limit info in headers (RateLimit-*)
   legacyHeaders: false,      // Disable X-RateLimit-* headers
   keyGenerator: (req: Request) => {
-    // Rate limit by IP + email combo for login endpoints
     const email = req.body?.email || "";
-    return `auth:${req.ip}:${email}`;
+    return `auth:${normalizeIp(req)}:${email}`;
   },
-  skipFailedRequests: false,  // Count all requests
+  validate: false, // Custom composite key — disable built-in IP validation
+  skipFailedRequests: false,
   skipSuccessfulRequests: false,
 });
 
@@ -47,7 +54,7 @@ export const passwordResetRateLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req: Request) => `reset:${req.ip}`,
+  // Uses default keyGenerator (req.ip with proper IPv6 handling)
 });
 
 // ─── API Rate Limiter ───────────────────────────────────────────────────────
@@ -67,10 +74,11 @@ export const apiRateLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req: Request) => {
-    // Rate limit by user ID if authenticated, else by IP
+    // Rate limit by user ID if authenticated, else by normalized IP
     const userId = (req as any).user?._id?.toString();
-    return userId ? `api:user:${userId}` : `api:ip:${req.ip}`;
+    return userId ? `api:user:${userId}` : `api:ip:${normalizeIp(req)}`;
   },
+  validate: false, // Custom composite key — disable built-in IP validation
 });
 
 // ─── Widget Rate Limiter ────────────────────────────────────────────────────

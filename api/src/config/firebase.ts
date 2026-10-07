@@ -31,10 +31,18 @@ export async function initializeFirebase(): Promise<void> {
 
     if (env.FIREBASE_SERVICE_ACCOUNT_KEY) {
       try {
-        const parsedKey = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_KEY);
+        // dotenv may include surrounding quotes — strip them
+        let raw = env.FIREBASE_SERVICE_ACCOUNT_KEY.trim();
+        if ((raw.startsWith("'") && raw.endsWith("'")) || (raw.startsWith('"') && raw.endsWith('"'))) {
+          raw = raw.slice(1, -1);
+        }
+        const parsedKey = JSON.parse(raw);
         certConfig.credential = cert(parsedKey);
-      } catch (err) {
-        console.warn("[Auth] Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY as JSON. Using application default credentials.");
+      } catch (parseErr: any) {
+        console.warn(
+          `[Auth] Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY as JSON: ${parseErr.message}`
+        );
+        console.warn("[Auth] Using application default credentials.");
       }
     }
 
